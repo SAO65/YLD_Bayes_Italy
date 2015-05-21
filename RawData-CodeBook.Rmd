@@ -1,0 +1,131 @@
+---
+output: html_document
+---
+
+### Stefano Olgiati, PhD, MS
+### Department of Quantitative Methods, via dei Caniana 2, Bergamo (ITA) 24129 ### tel  +39 035 20 52 638; fax +39 035 20 52 549 
+### email <stefano.olgiati@unibg.it>
+
+```{r echo=FALSE, results='hide'}
+library(data.table)
+```
+
+### Raw Data
+We utilized open access data from:
+
+1. the Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease Study 2010 [GHDx]("http://ghdx.healthmetricsandevaluation.org/sites/default/files/record-attached-files/IHME_GBD_2010_HALE_BY_COUNTRY_1990_2010_Y2010M02D23.CSV");
+
+2. the World Health Organization’s [Data Repository on Health Expenditure]("http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHS7_156,WHS7_105,WHS7_104,WHS7_108&profile=xmart&filter=COUNTRY:*;REGION:AFR;REGION:AMR;REGION:SEAR;REGION:EUR;REGION:EMR;REGION:WPR").
+
+### Code Book
+The following variables and definitions, based on “The Global Burden of Disease: Generating Evidence, Guiding Policy” and the World Health Organization’s Data Repository on Health Expenditure, were adopted when extracting the tidy data set from the raw data:
+
+* Life Expectancy (LE 50+): Life Expectancy at 50 is the average number of years that a person can be expected to live from age 50;
+
+* Health Adjusted Life Expectancy (HALE): Healthy Life Expectancy is the average number of years that a person can be expected to live in “full health”, by taking into account years lived in less than full health with disease and/or non-fatal injury ;
+
+* Years Lived with Disability (YLD): The Years Lived with Disability is the difference between LE and HALE, where LE is always greater than or equal to HALE. It is equivalent to the number of years that people live with a health condition or its consequences or in less than full health with disease and/or non-fatal injury;
+
+* Total Health Expenditure (THE): WHS7_105 Per capita total expenditure on health (PPP int.$) includes public (government, external resources for health from international programs and social security) and private expenditure (private pre-paid plans and out-of-pocket). For the purpose of international comparisons, THE is expressed in International Purchase Power Parity United States Dollars (USD PPP) which, according to the World Bank, is the number of units of a country’s currency required to buy the same amounts of goods and services in the domestic market as one US Dollar would buy in the United States.
+
+### Raw Data
+Downloading data from the repositories
+
+```{r, cache=TRUE}
+
+# Getting raw data from the IHME Global Burden of Disease Study 2010
+fileURL.GBD <- "http://ghdx.healthmetricsandevaluation.org/sites/default/files/record-attached-files/IHME_GBD_2010_HALE_BY_COUNTRY_1990_2010_Y2010M02D23.CSV"
+
+# Getting raw data from the WHO Health Expenditure Repository
+fileURL.WHO <- "http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHS7_156,WHS7_105,WHS7_104,WHS7_108&profile=xmart&filter=COUNTRY:*;REGION:AFR;REGION:AMR;REGION:SEAR;REGION:EUR;REGION:EMR;REGION:WPR"
+
+download.file(fileURL.GBD, destfile="RawData/GBD.csv")
+download.file(fileURL.WHO, destfile="RawData/WHO.csv")
+
+dateDownloaded <- date()
+dateDownloaded
+```
+
+Reading raw data in .csv format
+````{r}
+# Raw Data
+raw.data.GBD <- read.csv("RawData/GBD.csv")
+raw.data.WHO <- read.csv("RawData/WHO.csv")
+names(raw.data.GBD)
+names(raw.data.WHO)
+dim(raw.data.GBD)
+dim(raw.data.WHO)
+
+# Data Tables
+attach(raw.data.GBD)
+attach(raw.data.WHO)
+
+DT.GBD <- data.table(raw.data.GBD)
+DT.WHO <- data.table(raw.data.WHO)
+
+tables()
+```
+
+
+### Tidy Data Set
+
+Manipulating data to generate tidy datasets
+```{r}
+# ISO 13 codes of EU nations for 1990/95 - 2010
+# Austria, Belgium, Bulgaria, Croatia, Republic of Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malta, Netherlands, Poland, Portugal, Romania, Slovakia, Slovenia, Spain, Sweden and the UK
+
+ISO13 <- c("AUT",
+           "BEL",
+           "BGR",
+           "HRV",
+           "CYP",
+           "CZE",
+           "DNK",
+           "EST",
+           "FIN",
+           "FRA",
+           "DEU",
+           "GRC",
+           "HUN",
+           "IRL",
+           "ITA",
+           "LVA",
+           "LTU",
+           "LUX",
+           "MLT",
+           "NLD",
+           "POL",
+           "PRT",
+           "ROU",
+           "SVK",
+           "SVN",
+           "ESP",
+           "SWE",
+           "GBR")
+
+data.GBD.1990 <- DT.GBD[DT.GBD$year == "1990" & DT.GBD$age_name == "50-54 years" & DT.GBD$sex_name == "Both" & DT.GBD$iso3 %in% ISO13 , ]
+data.GBD.1990.ordered <- data.GBD.1990[order(iso3), ]
+
+data.GBD.2010 <- DT.GBD[DT.GBD$year == "2010" & DT.GBD$age_name == "50-54 years" & DT.GBD$sex_name == "Both" & DT.GBD$iso3 %in% ISO13 , ]
+data.GBD.2010.ordered <- data.GBD.2010[order(iso3), ]
+
+data.WHO.1995 <- DT.WHO[DT.WHO$YEAR == "1995" & DT.WHO$GHO == "WHS7_105" & DT.WHO$COUNTRY %in% ISO13,  ]
+data.WHO.1995.ordered <- data.WHO.1995[order(COUNTRY), ]
+
+data.WHO.2010 <- DT.WHO[DT.WHO$YEAR == "2010" & DT.WHO$GHO == "WHS7_105" & DT.WHO$COUNTRY %in% ISO13,  ]
+data.WHO.2010.ordered <- data.WHO.2010[order(COUNTRY), ]
+
+data.1990 <- data.frame(country=data.GBD.1990.ordered$iso3, le=data.GBD.1990.ordered$le, hale=data.GBD.1990.ordered$hale, the=data.WHO.1995.ordered$Display)
+
+data.2010 <- data.frame(country=data.GBD.2010.ordered$iso3, le=data.GBD.2010.ordered$le, le_ui = data.GBD.2010.ordered$le_ui, hale=data.GBD.2010.ordered$hale, hale_ui = data.GBD.2010.ordered$hale_ui, the=data.WHO.2010.ordered$Display)
+
+# Years Lived with Disease in G20 Countries for 1990 - 2010
+yld.1990 <- data.1990$le - data.1990$hale
+yld.2010 <- data.2010$le - data.2010$hale
+
+# Tidy Dataset
+tidy.data <- data.frame(country=data.2010$country, the_1990=data.1990$the, the_2010=data.2010$the, log_the_1990=log(data.1990$the), log_the_2010=log(data.2010$the), le_1990=data.1990$le,  le_2010=data.2010$le, hale_1990 = data.1990$hale, hale_2010 = data.2010$hale, yld_1990=yld.1990, yld_2010=yld.2010)
+
+# Saving Tidy Dataset to .csv file
+write.csv(tidy.data, "TidyData.csv")
+```

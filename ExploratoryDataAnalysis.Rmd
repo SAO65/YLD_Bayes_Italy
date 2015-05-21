@@ -1,0 +1,86 @@
+### Stefano Olgiati, PhD, MS
+### Department of Quantitative Methods, via dei Caniana 2, Bergamo (ITA) 24129 ### tel  +39 035 20 52 638; fax +39 035 20 52 549 
+### email <stefano.olgiati@unibg.it>
+
+### Exploratory Data Analysis
+```{r}
+tidy.data <- read.csv("TidyData.csv")
+attach(tidy.data)
+
+ID <- "ITA"
+
+# Data for background and rationale
+tidy.data$le_2010[tidy.data$country == ID]
+tidy.data$le_1990[tidy.data$country == ID]
+median(tidy.data$le_2010)
+mad(tidy.data$le_2010)
+
+tidy.data$yld_2010[tidy.data$country == ID]
+tidy.data$yld_1990[tidy.data$country == ID]
+median(tidy.data$yld_2010)
+mad(tidy.data$yld_2010)
+mean(tidy.data$yld_2010)
+var(tidy.data$yld_2010)
+
+tidy.data$hale_2010[tidy.data$country == ID]
+tidy.data$hale_1990[tidy.data$country == ID]
+median(tidy.data$hale_2010)
+mad(tidy.data$hale_2010)
+
+tidy.data$the_2010[tidy.data$country == ID]
+median(tidy.data$the_2010)
+mad(tidy.data$the_2010)
+
+# Strip Charts
+par(mfrow=(c(1,3)))
+strip.data.1 <- data.frame("YEAR 1990"=le_1990, "YEAR 2010"= le_2010)
+stripchart(strip.data.1, 
+           vertical=TRUE,
+           col=c("black", "skyblue"),
+           cex=1.5,
+           lty = "solid", 
+           lwd = 2,
+           method="jitter", 
+           main="Life Expectancy \n at 50 in the EU",
+           ylab="Number of Years")
+abline(h=c(median(le_1990), median(le_2010)),col=c("black", "skyblue"),
+           lty = "solid", 
+           lwd = 2) 
+points(c(tidy.data$le_1990[tidy.data$country == ID], tidy.data$le_2010[tidy.data$country == ID]), pch=22, col="red", cex = 2, lty = "solid", lwd = 2)
+text(c(tidy.data$le_1990[tidy.data$country == ID], tidy.data$le_2010[tidy.data$country == ID]), labels="ITALY", cex= 1.5, pos=c(4,2))
+summary(strip.data.1)
+
+strip.data.2 <- data.frame("YEAR 1990"=yld_1990, "YEAR 2010"=yld_2010)
+stripchart(strip.data.2, 
+           vertical=TRUE,
+           col=c("black", "skyblue"),
+           cex=1.5,
+           lty = "solid", 
+           lwd = 2,
+           method="jitter", 
+           main="Years Lived with Disease \n at 50 in the EU",
+           ylab="Number of Years")
+abline(h=c(median(yld_1990), median(yld_2010)),col=c("black", "skyblue"),
+           lty = "solid", 
+           lwd = 2)
+points(c(tidy.data$yld_1990[tidy.data$country == ID], tidy.data$yld_2010[tidy.data$country == ID]), pch=22, col="red", cex = 2, lty = "solid", lwd = 2)
+text(c(tidy.data$yld_1990[tidy.data$country == ID], tidy.data$yld_2010[tidy.data$country == ID]), labels="ITALY", cex= 1.5, pos=c(4,2))
+summary(strip.data.2)
+
+strip.data.3 <- data.frame("YEAR 1990"=the_1990, "YEAR 2010"=the_2010)
+stripchart(strip.data.3, 
+           vertical=TRUE,
+           cex=1.5,
+           lty = "solid", 
+           lwd = 2,
+           col=c("black", "skyblue"),
+           method="jitter", 
+           main="Per-capita Total Health \n Expenditure in the EU",
+           ylab="PPP int.$")
+abline(h=c(median(the_1990), median(the_2010)),col=c("black", "skyblue"),
+           lty = "solid", 
+           lwd = 2)
+points(c(tidy.data$the_1990[tidy.data$country == ID], tidy.data$the_2010[tidy.data$country == ID]), pch=22, col="red", cex = 2, lty = "solid", lwd = 2)
+text(c(tidy.data$the_1990[tidy.data$country == ID], tidy.data$the_2010[tidy.data$country == ID]), labels="ITALY", cex= 1.5, pos=c(4,2))
+summary(strip.data.3)
+```
